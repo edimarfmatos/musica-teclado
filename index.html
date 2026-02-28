@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Aula Interativa de Teclado</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    font-family:Arial;
+    text-align:center;
+    color:white;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+}
+
+.teclado{
+    position:relative;
+    height:260px;
+    display:flex;
+    justify-content:center;
+    margin-bottom:30px;
+}
+
+/* TECLAS BRANCAS */
+.tecla{
+    position:relative;
+    width:60px;
+    height:220px;
+    background:white;
+    border:1px solid black;
+    box-sizing:border-box;
+}
+
+/* BARRA PRETA SUPERIOR */
+.nome-topo{
+    position:absolute;
+    top:0;
+    width:100%;
+    background:black;
+    color:white;
+    font-size:11px;
+    padding:3px 0;
+}
+
+/* TECLAS PRETAS */
+.preta{
+    position:absolute;
+    width:40px;
+    height:140px;
+    background:black;
+    top:0;
+    z-index:10;
+    border-radius:0 0 6px 6px;
+}
+
+.preta .nome-topo{
+    background:#111;
+}
+
+/* BOLINHA */
+.bolinha{
+    position:absolute;
+    width:20px;
+    height:20px;
+    background:red;
+    border-radius:50%;
+    box-shadow:0 0 10px red;
+}
+
+/* BRANCA → mais na ponta */
+.branca-ativa{
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+/* PRETA → central */
+.preta-ativa{
+    top:70px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+/* BOTÕES */
+.botoes{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+}
+
+button{
+    padding:10px 15px;
+    font-size:15px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#333;
+    color:white;
+}
+
+button:hover{
+    background:#ff9900;
+}
+
+.limpar{
+    background:#aa0000;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>Aula Interativa de Teclado</h2>
+
+<div class="teclado" id="teclado"></div>
+
+<div class="botoes">
+<button onclick="mostrarAcorde('C')">Dó</button>
+<button onclick="mostrarAcorde('D')">Ré</button>
+<button onclick="mostrarAcorde('E')">Mi</button>
+<button onclick="mostrarAcorde('F')">Fá</button>
+<button onclick="mostrarAcorde('G')">Sol</button>
+<button onclick="mostrarAcorde('A')">Lá</button>
+<button onclick="mostrarAcorde('B')">Si</button>
+
+<button onclick="mostrarAcorde('Cm')">Dó m</button>
+<button onclick="mostrarAcorde('Dm')">Ré m</button>
+<button onclick="mostrarAcorde('Em')">Mi m</button>
+<button onclick="mostrarAcorde('Fm')">Fá m</button>
+<button onclick="mostrarAcorde('Gm')">Sol m</button>
+<button onclick="mostrarAcorde('Am')">Lá m</button>
+<button onclick="mostrarAcorde('Bm')">Si m</button>
+
+<button class="limpar" onclick="limpar()">Limpar</button>
+</div>
+
+</div>
+
+<script>
+
+const teclado = document.getElementById("teclado");
+
+const nomesPT = {
+"C":"Dó","C#":"Dó#",
+"D":"Ré","D#":"Ré#",
+"E":"Mi",
+"F":"Fá","F#":"Fá#",
+"G":"Sol","G#":"Sol#",
+"A":"Lá","A#":"Lá#",
+"B":"Si"
+};
+
+const oitava = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const notas = [...oitava, ...oitava];
+
+/* CRIAR BRANCAS */
+notas.forEach((nota,i)=>{
+    if(!nota.includes("#")){
+        const tecla=document.createElement("div");
+        tecla.className="tecla";
+        tecla.dataset.nota=nota;
+        tecla.dataset.index=i;
+
+        const nome=document.createElement("div");
+        nome.className="nome-topo";
+        nome.innerText=nomesPT[nota];
+        tecla.appendChild(nome);
+
+        teclado.appendChild(tecla);
+    }
+});
+
+/* CRIAR PRETAS */
+const brancas=document.querySelectorAll(".tecla");
+
+brancas.forEach((tecla,i)=>{
+    const nota=tecla.dataset.nota;
+    if(nota==="C"||nota==="D"||nota==="F"||nota==="G"||nota==="A"){
+        const preta=document.createElement("div");
+        preta.className="preta";
+        preta.dataset.nota=nota+"#";
+
+        preta.style.left=(tecla.offsetLeft+45)+"px";
+
+        const nome=document.createElement("div");
+        nome.className="nome-topo";
+        nome.innerText=nomesPT[nota+"#"];
+        preta.appendChild(nome);
+
+        teclado.appendChild(preta);
+    }
+});
+
+/* MAPA DE OITAVA PREFERENCIAL */
+const mapaOitava = {
+C:1, Cm:1,
+D:1, Dm:1,
+E:1, Em:1,
+F:0, Fm:0,
+G:0, Gm:0,
+A:0, Am:0,
+B:1, Bm:1
+};
+
+const acordes={
+C:["C","E","G"],
+D:["D","F#","A"],
+E:["E","G#","B"],
+F:["F","A","C"],
+G:["G","B","D"],
+A:["A","C#","E"],
+B:["B","D#","F#"],
+
+Cm:["C","D#","G"],
+Dm:["D","F","A"],
+Em:["E","G","B"],
+Fm:["F","G#","C"],
+Gm:["G","A#","D"],
+Am:["A","C","E"],
+Bm:["B","D","F#"]
+};
+
+function limpar(){
+    document.querySelectorAll(".bolinha").forEach(b=>b.remove());
+}
+
+function mostrarAcorde(nome){
+    limpar();
+    const notasAcorde=acordes[nome];
+    if(!notasAcorde) return;
+
+    const oitavaPreferida = mapaOitava[nome];
+
+    notasAcorde.forEach(nota=>{
+        const teclas = document.querySelectorAll(`[data-nota='${nota}']`);
+        const tecla = teclas[oitavaPreferida];
+
+        if(tecla){
+            const bolinha=document.createElement("div");
+            bolinha.className="bolinha";
+
+            if(tecla.classList.contains("preta")){
+                bolinha.classList.add("preta-ativa");
+            }else{
+                bolinha.classList.add("branca-ativa");
+            }
+
+            tecla.appendChild(bolinha);
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
