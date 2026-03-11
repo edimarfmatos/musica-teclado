@@ -195,23 +195,30 @@ brancaIndex++
 
 tecla.id=n
 
-/* NOME */
-
 let nome=document.createElement("div")
 nome.className="nome"
 nome.innerText=nomeNota
 
 tecla.appendChild(nome)
 
-/* CLICK SOM */
+/* MULTI TOUCH */
 
-tecla.onclick=()=>tocarNota(n)
+tecla.addEventListener("touchstart",(e)=>{
+e.preventDefault()
+tocarNota(n)
+})
+
+/* CLICK PC */
+
+tecla.addEventListener("mousedown",()=>{
+tocarNota(n)
+})
 
 teclado.appendChild(tecla)
 
 })
 
-/* SOM */
+/* AUDIO */
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
 
@@ -240,7 +247,11 @@ osc.frequency.value=freq
 osc.connect(gain)
 gain.connect(audioCtx.destination)
 
+gain.gain.value=0.3
+
 osc.start()
+
+/* fade */
 
 gain.gain.exponentialRampToValueAtTime(
 0.0001,
@@ -287,15 +298,11 @@ bol.innerText=n.replace(/[0-9]/g,'')
 
 tecla.appendChild(bol)
 
-/* toca nota */
-
 tocarNota(n)
 
 })
 
 }
-
-/* LIMPAR */
 
 function limpar(){
 document.querySelectorAll(".bolinha").forEach(b=>b.remove())
